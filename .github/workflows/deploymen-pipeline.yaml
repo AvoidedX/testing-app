@@ -4,13 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: 'Release version'
+        description: 'Release version (e.g., v1.0.0)'
         required: true
         type: string
-      target_branch:
-        description: 'Branch to deploy from'
-        required: true
-        default: 'main'
 
 env:
   REGISTRY: ghcr.io
@@ -25,6 +21,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # # Required to access all tags
 
       - name: Validate version format
         run: |
@@ -35,10 +33,20 @@ jobs:
 
       - name: Create Git tag
         run: |
+          TAG=${{ github.event.inputs.release_version }}
+          
+          # Check if tag exists locally or remotely
+          if git rev-parse "$TAG" >/dev/null 2>&1 || \
+             git ls-remote --exit-code origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "::notice::Tag $TAG already exists. Skipping tag creation."
+            exit 0
+          fi
+
+          # Create and push new tag
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
-          git tag ${{ github.event.inputs.release_version }}
-          git push origin ${{ github.event.inputs.release_version }}
+          git tag "$TAG"
+          git push origin "$TAG"
 
   build-and-push-image:
     name: Build and Push Docker Image
