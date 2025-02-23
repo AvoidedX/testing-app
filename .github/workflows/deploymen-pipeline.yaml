@@ -16,6 +16,8 @@ jobs:
   create-release-tag:
     name: Create Release Tag
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Critical fix for tag pushing
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -84,7 +86,7 @@ jobs:
             set -euo pipefail
             
             # Pull latest image
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.github.event.inputs.release_version }}
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
             
             # Stop and remove old container
             docker stop welcome-app || true
@@ -95,7 +97,7 @@ jobs:
               --name welcome-app \
               --restart unless-stopped \
               -p 8000:5000 \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.github.event.inputs.release_version }}
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
             
             # Cleanup old images
             docker image prune -af --filter "until=24h"
