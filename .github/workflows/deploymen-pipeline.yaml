@@ -7,6 +7,10 @@ on:
         description: 'Release version'
         required: true
         type: string
+      target_branch:
+        description: 'Branch to deploy from'
+        required: true
+        default: 'main'
 
 env:
   REGISTRY: ghcr.io
