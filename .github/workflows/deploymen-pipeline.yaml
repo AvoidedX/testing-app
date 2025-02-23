@@ -71,8 +71,6 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
       - name: Make image public
         run: |
           gh api \
