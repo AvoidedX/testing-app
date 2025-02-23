@@ -59,35 +59,3 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.release_version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-  deploy:
-    name: Deploy to VM
-    needs: build-and-push-image
-    runs-on: ubuntu-latest
-    steps:
-      - name: SSH Deploy
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            #!/bin/bash
-            set -euo pipefail
-            
-            # Pull latest image
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
-            
-            # Stop and remove old container
-            docker stop welcome-app || true
-            docker rm welcome-app || true
-            
-            # Run new container
-            docker run -d \
-              --name welcome-app \
-              --restart unless-stopped \
-              -p 8000:5000 \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
-            
-            # Cleanup old images
-            docker image prune -af --filter "until=24h"
