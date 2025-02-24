@@ -9,7 +9,7 @@ on:
         type: string
 
 env:
-  REGISTRY: ghcr.io
+  REGISTRY: docker.io
   IMAGE_NAME: testing/welcome
 
 jobs:
@@ -71,10 +71,6 @@ jobs:
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
             ${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          provenance: true
-          sbom: true
 
   deploy:
     name: Deploy to VM
