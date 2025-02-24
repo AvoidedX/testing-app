@@ -68,9 +68,9 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ secrets.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ secrets.IMAGE_NAME }}:sha-${{ github.sha }}
-            ${{ env.REGISTRY }}/${{ secrets.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
 
   deploy:
     name: Deploy to VM
