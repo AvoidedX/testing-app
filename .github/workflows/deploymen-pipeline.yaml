@@ -68,7 +68,6 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.IMAGE_NAME }}:latest
             ${{ secrets.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
             ${{ secrets.IMAGE_NAME }}:sha-${{ github.sha }}
 
