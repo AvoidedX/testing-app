@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: 'Release version (e.g., 1.0.0)'
+        description: 'Release version (e.g., v1.0.0)'
         required: true
         type: string
 
@@ -26,7 +26,7 @@ jobs:
 
       - name: Validate version format
         run: |
-          if [[ ! "${{ github.event.inputs.release_version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ ! "${{ github.event.inputs.release_version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Invalid version format. Use semantic versioning (e.g., 1.0.0)"
             exit 1
           fi
