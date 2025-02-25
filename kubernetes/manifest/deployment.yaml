@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: welcome-app
+  namespace: default
+  labels:
+    app: welcome-app
 spec:
   replicas: 3
   selector:
