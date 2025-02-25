@@ -111,28 +111,6 @@ jobs:
     if: ${{ github.event.inputs.action == 'build-and-deploy' || github.event.inputs.action == 'deploy-only' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Attempt to pull image
-        id: image-check
-        continue-on-error: true
-        run: |
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.release_version }}
-
-      - name: Trigger build if missing
-        if: ${{ steps.image-check.outcome == 'failure' && github.event.inputs.action == 'deploy-only' }}
-        uses: actions/github-script@v6
-        with:
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'Deployment Pipeline',
-              ref: context.ref,
-              inputs: {
-                action: 'build-and-deploy',
-                release_version: '${{ inputs.release_version }}'
-              }
-            })
-          
       - name: SSH Deploy
         uses: appleboy/ssh-action@v1.2.1
         with:
