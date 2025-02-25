@@ -36,7 +36,7 @@ jobs:
           fi
   
   build-and-push-image:
-    name: Build and Push Docker Image
+    name: Build and Push
     needs: validate-version-format
     if: (inputs.action == 'build-only')
     runs-on: ubuntu-latest
@@ -82,7 +82,7 @@ jobs:
           git push origin "$TAG"
           
   deploy:
-    name: Deploy to VM
+    name: Deploy
     needs: validate-version-format
     if: ${{ github.event.inputs.action == 'deploy-only' }}
     runs-on: ubuntu-latest
@@ -115,7 +115,7 @@ jobs:
             docker image prune -af --filter "until=24h"
        
   build-and-deploy:
-    name: Build & Deploy to VM
+    name: Build, Push, & Deploy
     needs: validate-version-format
     if: ${{ github.event.inputs.action == 'build-and-deploy' }}
     runs-on: ubuntu-latest
