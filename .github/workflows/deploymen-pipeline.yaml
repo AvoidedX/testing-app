@@ -34,35 +34,10 @@ jobs:
             echo "Invalid version format. Use semantic versioning (e.g., v1.0.0)"
             exit 1
           fi
-
-  check-image:
-    name: Image Availability Check
-    needs: validate-version-format
-    if: (github.event.inputs.action == 'deploy-only' || github.event.inputs.action == 'build-and-deploy')
-    runs-on: ubuntu-latest
-    outputs:
-      build-image-required: ${{ steps.check.outputs.requires-build }}
-    steps:
-      - name: Check Docker Hub for image
-        id: check
-        run: |
-          # Check image existence using Docker Hub API
-          status=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: Bearer ${{ secrets.DOCKERHUB_TOKEN }}" \
-            "https://hub.docker.com/v2/repositories/${{ env.IMAGE_NAME }}/tags/${{ inputs.release_version }}/")
-          
-          if [ "$status" -ne 200 ]; then
-            echo "requires-build=true" >> $GITHUB_OUTPUT
-          else
-            echo "requires-build=false" >> $GITHUB_OUTPUT
-          fi
   
   build-and-push-image:
     name: Build and Push Docker Image & Create Git Tag
-    needs: check-image
-    if: |
-      (inputs.action == 'build-only') ||
-      (inputs.action != 'build-only' && needs.check-image.outputs.build-image-required == 'true')
+    if: (inputs.action == 'build-only')
     runs-on: ubuntu-latest
     permissions:
       contents: write  # Critical fix for tag pushing
@@ -104,36 +79,12 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git tag "$TAG"
           git push origin "$TAG"
-
+          
   deploy:
     name: Deploy to VM
-    needs: 
-      - ${{ github.event.inputs.action == 'build-and-deploy' && 'build' || '' }}
-    if: ${{ github.event.inputs.action == 'build-and-deploy' || github.event.inputs.action == 'deploy-only' }}
+    if: ${{ github.event.inputs.action == 'deploy-only' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Attempt to pull image
-        id: image-check
-        continue-on-error: true
-        run: |
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.release_version }}
-
-      - name: Trigger build if missing
-        if: ${{ steps.image-check.outcome == 'failure' && github.event.inputs.action == 'deploy-only' }}
-        uses: actions/github-script@v6
-        with:
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'Deployment Pipeline',
-              ref: context.ref,
-              inputs: {
-                action: 'build-and-deploy',
-                release_version: '${{ inputs.release_version }}'
-              }
-            })
-          
       - name: SSH Deploy
         uses: appleboy/ssh-action@v1.2.1
         with:
@@ -160,3 +111,11 @@ jobs:
             
             # Cleanup old images
             docker image prune -af --filter "until=24h"
+       
+  build-and-deploy:
+    name: Build Docker Image & Deploy to VM
+    needs: [build-and-push-image, deploy]
+    if: ${{ github.event.inputs.action == 'build-and-deploy' }}
+    runs-on: ubuntu-latest
+            
+  
