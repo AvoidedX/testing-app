@@ -5,7 +5,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o main .
 
 # Final stage
-FROM alpine:latest
+FROM alpine:3.21
 RUN addgroup -S basic && adduser -S basic -G basic
 WORKDIR /app
 COPY --from=builder --chown=basic:basic /app/main .
