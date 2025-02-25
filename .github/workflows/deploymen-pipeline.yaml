@@ -60,9 +60,7 @@ jobs:
   build-and-push-image:
     name: Build and Push Docker Image & Create Git Tag
     needs: check-image
-    if: |
-      (inputs.action == 'build-only') ||
-      (inputs.action != 'build-only' && needs.check-image.outputs.build-image-required == 'true')
+    if: needs.check-image.outputs.needs-build == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write  # Critical fix for tag pushing
