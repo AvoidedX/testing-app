@@ -37,6 +37,7 @@ jobs:
   
   build-and-push-image:
     name: Build and Push Docker Image & Create Git Tag
+    needs: validate-version-format
     if: (inputs.action == 'build-only')
     runs-on: ubuntu-latest
     permissions:
@@ -82,6 +83,7 @@ jobs:
           
   deploy:
     name: Deploy to VM
+    needs: validate-version-format
     if: ${{ github.event.inputs.action == 'deploy-only' }}
     runs-on: ubuntu-latest
     steps:
@@ -114,6 +116,7 @@ jobs:
        
   build-and-deploy:
     name: Build Docker Image & Deploy to VM
+    needs: validate-version-format
     if: ${{ github.event.inputs.action == 'build-and-deploy' }}
     runs-on: ubuntu-latest
     permissions:
