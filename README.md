@@ -1,6 +1,6 @@
 # Welcome Application
 
-A Golang simple web application with Docker, and CI/CD pipelines.
+A Simple Golang web application with Docker, and CI/CD pipelines.
 
 ## Access
 
