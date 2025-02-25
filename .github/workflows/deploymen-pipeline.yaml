@@ -70,7 +70,7 @@ jobs:
           
           # Check if tag exists locally or remotely
           if git rev-parse "$TAG" >/dev/null 2>&1 || \
-             git ls-remote --exit-code origin "refs/tags/$TAG" >/dev/null 2>&1; then
+             git ls-remote --tags origin "$TAG" | grep -q "$TAG"; then
             echo "::notice::Tag $TAG already exists. Skipping tag creation."
             exit 0
           fi
