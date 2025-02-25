@@ -83,7 +83,7 @@ jobs:
 
   deploy:
     name: Deploy to VM
-    needs: ${{ github.event.inputs.action == 'build-and-deploy' && 'build-and-push-image' || '' }}
+    needs: ${{ inputs.action == 'build-and-deploy' && 'build-and-push-image' || '' }}
     if: ${{ github.event.inputs.action == 'build-and-deploy' || github.event.inputs.action == 'deploy-only' }}
     runs-on: ubuntu-latest
     steps:
