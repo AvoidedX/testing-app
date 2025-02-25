@@ -2,18 +2,24 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: welcome-app-ingress
+  namespace: default
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
-  ingressClassName: nginx
+  tls:
+  - hosts:
+    - welcome.example.com
+    secretName: welcome-app-tls
   rules:
-  - host: welcome.yourdomain.com
+  - host: welcome.example.com
     http:
       paths:
-      - path: /welcome(/|$)(.*)
+      - path: /
         pathType: Prefix
         backend:
           service:
-            name: welcome-service
+            name: welcome-app-service
             port:
               number: 80
